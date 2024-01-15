@@ -1,0 +1,23 @@
+* {
+    font-size: 40dp;
+}
+Window{
+	background-color:#646464;
+}
+TextView {
+	margin-top: 50vh;
+	background-color: #323232;
+	color: white;
+	font-size: 50dp;
+	padding: 50dp;
+	border: 2px solid black;
+}
+PushButton {
+	background-color: gray;
+	color: white;
+	border: 2px solid black;
+}
+PushButton:active {
+	background: white;
+	color: gray;
+}

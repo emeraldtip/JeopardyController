@@ -1,0 +1,63 @@
+{
+  "eepp something": {
+    "build": [
+      {
+        "args": "",
+        "command": "make",
+        "working_dir": ""
+      }
+    ],
+    "build_types": [],
+    "clean": [
+      {
+        "args": "",
+        "command": "",
+        "working_dir": ""
+      }
+    ],
+    "config": {
+      "clear_sys_env": false
+    },
+    "os": [
+      "linux"
+    ],
+    "output_parser": {
+      "config": {
+        "relative_file_paths": true
+      }
+    }
+  },
+  "eepp something but run": {
+    "build": [
+      {
+        "args": "",
+        "command": "make",
+        "working_dir": ""
+      },
+      {
+        "args": "",
+        "command": "bin/test",
+        "working_dir": ""
+      }
+    ],
+    "build_types": [],
+    "clean": [
+      {
+        "args": "",
+        "command": "",
+        "working_dir": ""
+      }
+    ],
+    "config": {
+      "clear_sys_env": false
+    },
+    "os": [
+      "linux"
+    ],
+    "output_parser": {
+      "config": {
+        "relative_file_paths": true
+      }
+    }
+  }
+}
