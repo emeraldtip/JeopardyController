@@ -27,6 +27,10 @@ UIWidget* acceptButton;
 UIWidget* stopAccceptButton;
 UIWidget* cancelButton;
 UIWidget* testButton;
+UIWidget* rescanButton;
+
+//port selector text view
+UIWidget* portSelector;
 
 //sounds
 SoundBuffer mismBuf;
@@ -47,10 +51,10 @@ std::vector<String> getPorts()
 		std::string path = "/dev";
 		for (const auto & entry : std::filesystem::directory_iterator(path))
 		{
-			//if (entry.path().u8string().find("USB") != std::string::npos)
-			//{	
+			if (entry.path().u8string().find("USB") != std::string::npos)
+			{	
 				ports.push_back(entry.path().u8string());
-			//}
+			}
 		}
 	#endif
 	
@@ -78,7 +82,6 @@ String readSerial()
 	return "";
 }
 
-//button functions
 
 
 void mainLoop() {
@@ -130,6 +133,11 @@ EE_MAIN_FUNC int main(int, char**) {
 		parser.loadFromFile("assets/styles/style.css");
 		uiSceneNode->setStyleSheet(parser.getStyleSheet());
 		
+		//port selector 
+		auto portSelector = uiSceneNode->find<UIDropDownList>("portselector");
+		portSelector->getListBox()->clear();
+		portSelector->getListBox()->addListBoxItems(getPorts());
+		
 		
 		//button setups
 		//automatic storage duration setting thing ig
@@ -137,6 +145,7 @@ EE_MAIN_FUNC int main(int, char**) {
 		auto stopAcceptButton = uiSceneNode->find<UIPushButton>("stop_accepting");
 		auto cancelButton = uiSceneNode->find<UIPushButton>("cancel_answer");
 		auto testButton = uiSceneNode->find<UIPushButton>("testmode");
+		auto rescanButton = uiSceneNode->find<UIPushButton>("rescan");
 		
 		acceptButton->onClick([acceptButton](const MouseEvent*) {
 			acceptButton->setBackgroundColor(Color::lime);
@@ -157,11 +166,13 @@ EE_MAIN_FUNC int main(int, char**) {
 			testButton->setBackgroundColor(Color::lime);
 			sendSerial("test");
 		}, EE_BUTTON_LEFT);
+		rescanButton->onClick([portSelector](const MouseEvent*) {
+			portSelector->getListBox()->clear();
+			portSelector->getListBox()->addListBoxItems(getPorts());
+		}, EE_BUTTON_LEFT);
 		
-		//port selector vbox
-		auto portSelector = uiSceneNode->find<UIDropDownList>("portselector");
-		//portSelector->getListBox()->clear();
-		portSelector->getListBox()->addListBoxItems(getPorts());
+		
+		
 		
 		//sounds
 		mismBuf.loadFromFile("assets/sounds/MIS_MÕTTES.ogg");

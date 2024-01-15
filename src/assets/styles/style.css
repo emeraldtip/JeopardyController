@@ -12,19 +12,23 @@ TextView {
 	padding: 50dp;
 	border: 2px solid black;
 }
-
+DropDownList::ListBox {
+	rowHeight:60dp;
+	border: 2px solid gray;
+}
 DropdownList::ListBox::item {
 	background-color:#323232;
-	padding:50dp;
+	padding-left:50dp;
 }
 DropdownList::ListBox::item:hover {
 	background-color:#646464;
-	padding:50dp;
+	padding-left:50dp;
 }
 DropDownList {
 	background-color:#646464;
 	border: none;
 	layout-height:wc;
+	padding-left:10dp;
 }
 PushButton {
 	background-color: gray;
