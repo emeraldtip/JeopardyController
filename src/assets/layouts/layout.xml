@@ -25,11 +25,20 @@
 <GridLayout id="layout2"
 	layout_height="match_parent"
 	layout_width="match_parent"
-	margin-top="50%"
+	margin-top="25%"
 	column-mode="weight"
 	column-weight="0.5"
 	row-mode="weight"
-	row-weight="0.5">
+	row-weight="0.5"
+	background-color="#323232">
+		<TextView id="portname"
+			layout_width="match_parent"
+			layout_height="wrap_content"
+			text="Selected port:"/>
+		<DropDownList id="portselector"
+				layout_width = "mp"
+				layout_height = "wc"
+				/>
 		<TextView id="rawtitle"
 			layout_width="match_parent"
 			layout_height="wrap_content"

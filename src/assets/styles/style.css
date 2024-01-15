@@ -12,6 +12,9 @@ TextView {
 	padding: 50dp;
 	border: 2px solid black;
 }
+DropDownList {
+	background-color:#323232;
+}
 PushButton {
 	background-color: gray;
 	color: white;

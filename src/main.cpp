@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <iostream>
 #include <future>
+#include <vector>
 
 #if EE_PLATFORM == EE_PLATFORM_LINUX
 	//serial linux header thingies
@@ -38,6 +39,25 @@ Sound timeout;
 
 
 //serial control
+std::vector<String> getPorts()
+{
+	std::vector<String> ports;
+	//linux implementation
+	#if EE_PLATFORM == EE_PLATFORM_LINUX
+		std::string path = "/dev";
+		for (const auto & entry : std::filesystem::directory_iterator(path))
+		{
+			if (entry.path().u8string().find("USB") != std::string::npos)
+			{	
+				ports.push_back(entry.path().u8string());
+			}
+		}
+	#endif
+	
+	//windows implementation
+	return ports;
+}
+
 void openSerial(String port, int baudrate)
 {
 
@@ -137,8 +157,11 @@ EE_MAIN_FUNC int main(int, char**) {
 			testButton->setBackgroundColor(Color::lime);
 			sendSerial("test");
 		}, EE_BUTTON_LEFT);
-			
 		
+		//port selector vbox
+		auto portSelector = uiSceneNode->find<UIDropDownList>("portselector");
+		//portSelector->getListBox()->clear();
+		portSelector->getListBox()->addListBoxItems(getPorts());
 		
 		//sounds
 		mismBuf.loadFromFile("assets/sounds/MIS_MÕTTES.ogg");
