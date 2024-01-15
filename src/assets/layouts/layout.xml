@@ -34,11 +34,22 @@
 		<TextView id="portname"
 			layout_width="match_parent"
 			layout_height="wrap_content"
-			text="Selected port:"/>
-		<DropDownList id="portselector"
+			text="Selected port:"
+			border="none"/>
+		<RelativeLayout
+			layout_width = "mp"
+			layout_height = "wc"
+			orientation = "vertical">
+			<DropDownList id="portselector"
 				layout_width = "mp"
-				layout_height = "wc"
+				layout_height= "wc"
 				/>
+			<PushButton id="rescan"
+			margin-top="325dp"
+			padding = "10px"
+			text = "Scan again"
+			/>
+		</RelativeLayout>
 		<TextView id="rawtitle"
 			layout_width="match_parent"
 			layout_height="wrap_content"

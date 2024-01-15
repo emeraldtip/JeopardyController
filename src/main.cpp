@@ -47,10 +47,10 @@ std::vector<String> getPorts()
 		std::string path = "/dev";
 		for (const auto & entry : std::filesystem::directory_iterator(path))
 		{
-			if (entry.path().u8string().find("USB") != std::string::npos)
-			{	
+			//if (entry.path().u8string().find("USB") != std::string::npos)
+			//{	
 				ports.push_back(entry.path().u8string());
-			}
+			//}
 		}
 	#endif
 	
@@ -107,7 +107,7 @@ void mainLoop() {
 
 
 EE_MAIN_FUNC int main(int, char**) {
-	win = Engine::instance()->createWindow(WindowSettings(1920, 1080, "Scuffed Culler"),
+	win = Engine::instance()->createWindow(WindowSettings(1920, 1080, "Jeopardy controller"),
 											ContextSettings(true));
 
 	if ( win->isOpen() ) {

@@ -1,7 +1,7 @@
 * {
     font-size: 40dp;
 }
-Window{
+:root{
 	background-color:#646464;
 }
 TextView {
@@ -12,8 +12,19 @@ TextView {
 	padding: 50dp;
 	border: 2px solid black;
 }
-DropDownList {
+
+DropdownList::ListBox::item {
 	background-color:#323232;
+	padding:50dp;
+}
+DropdownList::ListBox::item:hover {
+	background-color:#646464;
+	padding:50dp;
+}
+DropDownList {
+	background-color:#646464;
+	border: none;
+	layout-height:wc;
 }
 PushButton {
 	background-color: gray;
