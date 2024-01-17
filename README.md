@@ -6,3 +6,6 @@ Runs on arduino UNO and features:
 - 5 buttons for players
 - 5 fully working APA102 light strips as player statuses
 - 1 10px (due to arduino limitations) APA102 light strip for status 
+
+**WIP** The controller on PC uses the eepp gui.
+Planned support for windows and linux, maybe for mac later.
