@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <script src = "script.js"></script>
+    </head>
+    <body>
+         <!-- The video -->
+        <video autoplay muted loop id="video">
+          <source src="kuldvillak background shader.mp4" type="video/mp4">
+        </video>
+        <div class="shapes">
+            <div id="rect1"></div>
+            <div id="rect2"></div>
+            <div id="rect3"></div>
+            <div id="rect4"></div>
+            <div id="rect5"></div>
+            <div id="rect6"></div>
+        </div>
+        <!-- Optional: some overlay text to describe the video -->
+        <div class="content">
+           <div>
+              <!-- Use a button to pause/play the video with JavaScript -->
+              <button class = "button" onclick="p1c()">Player 1 Correct</button>
+              <button class = "button" onclick="p2c()">Player 2 Correct</button>
+              <button class = "button" onclick="p3c()">Player 3 Correct</button>
+              <button class = "button" onclick="p4c()">Player 4 Correct</button>
+              <button class = "button" onclick="p5c()">Player 5 Correct</button>
+          </div>
+          <div>
+              <button class = "button" onclick="p1w()">Player 1 Wrong</button>
+              <button class = "button" onclick="p2w()">Player 2 Wrong</button>
+              <button class = "button" onclick="p3w()">Player 3 Wrong</button>
+              <button class = "button" onclick="p4w()">Player 4 Wrong</button>
+              <button class = "button" onclick="p5w()">Player 5 Wrong</button>
+              <button class = "button" onclick="clearLights()"> Clear lights</button>
+          </div>
+        </div> 
+    </body>
+</html>
