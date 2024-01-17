@@ -10,15 +10,17 @@
 .content {
   position: fixed;
   bottom: 0;
+  left: 0;
   background: rgba(0, 0, 0, 0.5);
   color: #f1f1f1;
   width: 100%;
-  padding: 20px;
+  padding: 50px;
 }
 
 .button {
   width: 300px;
   height: 100px;
+  margin-bottom: 5px;
   font-size: 18px;
   padding: 10px;
   border: none;
