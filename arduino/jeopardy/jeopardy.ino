@@ -3,21 +3,28 @@
  * by Emerald
  * 
  * Supports up to 5 players
- * 5 Buttons (pins 8-12) and 5 APA102 lighstrips (clock - pin 2, signals - pins 3-7) + a status APA102 strip on pin A5 or a single LED on pin 13
+ * 5 Buttons (pins 8-12) and 5 APA102 lighstrips (clock - pin 2, signals - pins 3-7) + a status APA102 strip on pin A5 (with a clock on A3) 
+ * or a single LED on pin 13
  * 
  * NOTE: The APA102 light strips that were in mind when making this project had alternating RGB and W pixels.
  *       Also for some reason 2 of the strips had addresses in the reverse order to the rest so I had to implement extra code for that
- * 
+ *       These lightstrips were not daisy-chainable.
+ *       
  * External power supply recommended
- *
  */
- #define FASTLED_ALLOW_INTERRUPTS 0
+const bool DISABLE_STARTUP_SEQUENCE = false; //change to True to disable startup test sequence
+
+ 
+#define FASTLED_ALLOW_INTERRUPTS 0
 #include <FastLED.h>
 
 #define NUM_LEDS 82
 
 CRGB strips[5][NUM_LEDS];
 CRGB statusStrip[10]; //had to reduce the amount of leds to 10 due to memory issues
+
+bool testMode = true;
+bool expectingAnswers = false;
 
 void setup() {
   delay(3000); // 3 second delay for recovery
@@ -45,7 +52,16 @@ void setup() {
   Serial.begin(9600);
 
   //startup sequence to make sure that all lights work properly
-  startupSequence();
+  if (!DISABLE_STARTUP_SEQUENCE)
+  {
+    startupSequence(); 
+  }
+  else
+  {
+      Serial.println(F("init")); //F macro to reduce memory use
+      digitalWrite(13, HIGH);
+      testMode = false;
+  }
 }
 void setStrip(int stripNum, int index, int r, int g, int b) {
   if (stripNum == 4)
@@ -62,7 +78,7 @@ void startupSequence() {
     statusStrip[i] = CRGB(0,0,0);    
   }    
   FastLED.show();
-  int playerColors[5][3] = {{255,0,0},{255,255,0},{0,255,0},{0,255,255},{0,0,255}};
+  int playerColors[5][3] = {{255,0,0},{255,255,0},{0,255,0},{0,255,255},{255,0,255}};
   for (int e = 0; e < 5; e++)
   {
     for (int i = 1; i < NUM_LEDS; i+=2)
@@ -93,10 +109,21 @@ void startupSequence() {
 
 void initAnswer(int playerNumber)
 {
-  int playerColors[5][3] = {{255,0,0},{255,255,0},{0,255,0},{0,255,255},{0,0,255}};
+  int playerColors[5][3] = {{255,0,0},{255,255,0},{0,255,0},{0,255,255},{255,0,255}};
   for (int i = 1; i < NUM_LEDS; i+=2)
   {
     setStrip(playerNumber,i,playerColors[playerNumber][0], playerColors[playerNumber][1], playerColors[playerNumber][2]);    
+  }
+
+  //statusstrip off
+  for (int i = 1; i < 10; i+=1) //1 just in case something glitches out
+  {
+      statusStrip[i] = CRGB(0,0,0);    
+  }
+  //player color on status strip
+  for (int i = 0; i < 10; i+=2)
+  {
+    statusStrip[i] = CRGB(playerColors[playerNumber][0],playerColors[playerNumber][1],playerColors[playerNumber][2]);    
   }
   FastLED.show();
   answerCountDown(playerNumber, 150);
@@ -115,6 +142,10 @@ void answerCountDown(int playerNumber, int interval)
     {
       interval = 0;
     }
+    if (e > 39)
+    {
+      answerLedsOff();
+    }
   }
 }
 
@@ -129,15 +160,12 @@ void answerLedsOn()
 
 void answerLedsOff()
 {
-  for (int i = 1; i < 10; i+=1) //1 just in case something glitches out
+  for (int i = 0; i < 10; i+=1)
   {
       statusStrip[i] = CRGB(0,0,0);    
   }
   FastLED.show();
 }
-
-bool testMode = true;
-bool expectingAnswers = false;
 
 void loop() {
   if (testMode || expectingAnswers)
@@ -165,35 +193,30 @@ void loop() {
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
-      answerLedsOff();
       initAnswer(4);
     }
     if (digitalRead(9) == LOW)
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
-      answerLedsOff();
       initAnswer(3);
     }
     if (digitalRead(10) == LOW)
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
-      answerLedsOff();
       initAnswer(2);      
     }
     if (digitalRead(11) == LOW)
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
-      answerLedsOff();
       initAnswer(1);
     }
     if (digitalRead(12) == LOW)
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
-      answerLedsOff();
       initAnswer(0);
     }
   }
