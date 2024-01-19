@@ -167,6 +167,34 @@ void answerLedsOff()
   FastLED.show();
 }
 
+long int openTime = 0; //timestamp since answers opened
+long int penalties[5] = {0,0,0,0,0};
+
+void checkPlayerHolding() //check if player is holding down button before answers are open and penalise them
+{
+  if (digitalRead(8) == LOW)
+  {
+    penalties[4] = openTime+500;
+  }
+  if (digitalRead(9) == LOW)
+  {
+    penalties[3] = openTime+500;
+  }
+  if (digitalRead(10) == LOW)
+  {
+    penalties[2] = openTime+500;
+  }
+  if (digitalRead(11) == LOW)
+  {
+    penalties[1] = openTime+500;
+  }
+  if (digitalRead(12) == LOW)
+  {
+    penalties[0] = openTime+500;
+  }
+}
+
+
 void loop() {
   if (testMode || expectingAnswers)
   { 
@@ -180,7 +208,6 @@ void loop() {
     }
     
     
-    
     if (Serial.available() && Serial.readString()=="stop") //who uses bytes anyway
     {
       testMode = false;
@@ -189,31 +216,31 @@ void loop() {
     }
     
     
-    if (digitalRead(8) == LOW)
+    if (digitalRead(8) == LOW && millis()>penalties[4])
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(4);
     }
-    if (digitalRead(9) == LOW)
+    if (digitalRead(9) == LOW && millis()>penalties[3])
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(3);
     }
-    if (digitalRead(10) == LOW)
+    if (digitalRead(10) == LOW && millis()>penalties[2])
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(2);      
     }
-    if (digitalRead(11) == LOW)
+    if (digitalRead(11) == LOW && millis()>penalties[1])
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(1);
     }
-    if (digitalRead(12) == LOW)
+    if (digitalRead(12) == LOW && millis()>penalties[0])
     {
       digitalWrite(13, LOW);
       expectingAnswers = false;
@@ -229,6 +256,8 @@ void loop() {
       String tring = Serial.readString();
       if  (tring=="accept") //only real garbage programmers use strings
       {
+        openTime = millis(); //set answer opening timestamp
+        checkPlayerHolding();
         digitalWrite(13, HIGH);
         expectingAnswers = true;
         answerLedsOn();
