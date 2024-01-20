@@ -4,4 +4,7 @@ linxus: src/main.cpp
 	rm -rf bin
 	mkdir {bin,bin/assets}
 	cp -r src/assets/* bin/assets/
-	$(compiler) -o bin/test src/main.cpp -leepp-debug -lstdc++ 
+	$(compiler) -o bin/test src/main.cpp -Llib -leepp-debug -lstdc++ -lCppLinuxSerial
+	
+	
+#-Llib/serial/serialib (silly windows serial library

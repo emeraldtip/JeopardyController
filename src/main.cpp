@@ -8,17 +8,17 @@
 #include <vector>
 
 #if EE_PLATFORM == EE_PLATFORM_LINUX
-	//serial linux header thingies
-	#include <fcntl.h> // Contains file controls like O_RDWR
-	#include <errno.h> // Error integer and strerror() function
-	#include <termios.h> // Contains POSIX terminal control definitions
-	#include <unistd.h> // write(), read(), close()
+	#include <CppLinuxSerial/SerialPort.hpp>
+#endif
+#if EE_PLATFORM == EE_PLATFORM_WINDOWS
+	#include <serial/serialib>
 #endif
 
 
 using namespace EE::UI::Doc;
-
 #pragma GCC optimize("O3")
+
+
 
 EE::Window::Window* win = NULL;
 
@@ -43,6 +43,14 @@ Sound timeout;
 
 
 //serial control
+#if EE_PLATFORM == EE_PLATFORM_LINUX
+
+	mn::CppLinuxSerial::SerialPort sPort("", mn::CppLinuxSerial::BaudRate::B_9600);
+#endif
+#if EE_PLATFORM == EE_PLATFORM_WINDOWS
+	HANDLE sPort;
+#endif
+
 std::vector<String> getPorts()
 {
 	std::vector<String> ports;
@@ -62,24 +70,39 @@ std::vector<String> getPorts()
 	return ports;
 }
 
-void openSerial(String port, int baudrate)
+void openSerial(String port)
 {
-
+	#if EE_PLATFORM == EE_PLATFORM_LINUX
+		sPort.SetBaudRate(9600);
+		sPort.SetDevice(port);
+		sPort.Open();
+	#endif
+	#if EE_PLATFORM == EE_PLATFORM_LINUX
+		
+	#endif
 }
 
 void closeSerial()
 {
-
+	#if EE_PLATFORM == EE_PLATFORM_LINUX
+		sPort.Close();
+	#endif
 }
 
 void sendSerial(String text)
 {
-	mism.play();
+	#if EE_PLATFORM == EE_PLATFORM_LINUX
+		sPort.Write(text);
+	#endif
 }
 
 String readSerial()
 {
-	return "";
+	std::string readData;
+	#if EE_PLATFORM == EE_PLATFORM_LINUX
+		sPort.Read(readData);
+	#endif
+	return readData;
 }
 
 
@@ -211,8 +234,15 @@ EE_MAIN_FUNC int main(int, char**) {
 		//openbutton->onClick([openbutton,uiSceneNode](const MouseEvent*) {showFileDialog("Open folder", [uiSceneNode](const Event* event) {openFolder(event,uiSceneNode);},"*",UIFileDialog::AllowFolderSelect);});
 		
 		
-		win->setQuitCallback([](EE::Window::Window* w){std::cout<<"testilllll"<<std::endl;
-		MemoryManager::showResults();
+		win->setQuitCallback([](EE::Window::Window* w){
+			std::cout<<"Attempting to close open serial ports...\n";
+			#if EE_PLATFORM == EE_PLATFORM_LINUX
+				sPort.Close();
+			#endif
+			#if EE_PLATFORM == EE_PLATFORM_WINDOWS
+				//Insert windows port closing code here
+			#endif
+			//MemoryManager::showResults();
 		});
 		
 		//main loop
