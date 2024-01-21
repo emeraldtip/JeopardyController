@@ -52,18 +52,11 @@
 		</RelativeLayout>
 		<TextView id="rawtitle"
 			layout_width="match_parent"
-			layout_height="wrap_content"
+			layout_height="match_parent"
+			clip="auto"
 			text="Raw output:"/>
 		<TextView id="statustitle"
 			layout_width="match_parent"
 			layout_height="wrap_content"
 			text="Status:"/>
-		<TextView id="rawout"
-			layout_width="match_parent"
-			layout_height="wrap_content"
-			text="No serial port has been opened"/>
-		<TextView id="statusout"
-			layout_width="match_parent"
-			layout_height="wrap_content"
-			text="Waiting for initialization..."/>
 </GridLayout>

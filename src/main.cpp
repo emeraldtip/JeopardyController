@@ -23,24 +23,28 @@ using namespace EE::UI::Doc;
 EE::Window::Window* win = NULL;
 
 //buttons
-UIWidget* acceptButton;
-UIWidget* stopAccceptButton;
-UIWidget* cancelButton;
-UIWidget* testButton;
-UIWidget* rescanButton;
+UIPushButton* acceptButton;
+UIPushButton* stopAcceptButton;
+UIPushButton* cancelButton;
+UIPushButton* testButton;
+UIPushButton* rescanButton;
 
 //port selector text view
-UIWidget* portSelector;
+UIDropDownList* portSelector;
+
+//status views
+UITextView* rawOut;
+UITextView* statusOut;
 
 //sounds
-SoundBuffer mismBuf;
 SoundBuffer answerBuf;
 SoundBuffer timeoutBuf;
 
-Sound mism;
 Sound answer;
 Sound timeout;
 
+//game status
+int statusState = 0;
 
 //serial control
 #if EE_PLATFORM == EE_PLATFORM_LINUX
@@ -72,27 +76,34 @@ std::vector<String> getPorts()
 
 void openSerial(String port)
 {
-	#if EE_PLATFORM == EE_PLATFORM_LINUX
-		sPort.SetBaudRate(9600);
-		sPort.SetDevice(port);
-		sPort.Open();
-	#endif
-	#if EE_PLATFORM == EE_PLATFORM_LINUX
-		
-	#endif
+	if (port!="")
+	{
+		#if EE_PLATFORM == EE_PLATFORM_LINUX
+			sPort.SetBaudRate(9600);
+			sPort.SetDevice(port);
+			sPort.Open();
+		#endif
+		#if EE_PLATFORM == EE_PLATFORM_WINDOWS
+		#endif
+	}
 }
 
 void closeSerial()
 {
 	#if EE_PLATFORM == EE_PLATFORM_LINUX
-		sPort.Close();
+		if (sPort.GetState()==mn::CppLinuxSerial::State::OPEN)
+		{
+			sPort.Close();
+		}
 	#endif
 }
-
 void sendSerial(String text)
 {
 	#if EE_PLATFORM == EE_PLATFORM_LINUX
-		sPort.Write(text);
+		if (sPort.GetState()==mn::CppLinuxSerial::State::OPEN)
+		{
+			sPort.Write(text);
+		}
 	#endif
 }
 
@@ -100,23 +111,71 @@ String readSerial()
 {
 	std::string readData;
 	#if EE_PLATFORM == EE_PLATFORM_LINUX
-		sPort.Read(readData);
+		if (sPort.GetState()==mn::CppLinuxSerial::State::OPEN)
+		{
+			try
+			{
+				sPort.Read(readData);
+			}
+			catch(std::system_error){
+				std::cout<<"Serial port address is bad, port disconnected?\n";
+				statusState = 5;
+				std::cout<<"Attempting to close port\n";
+				sPort.Close();
+				portSelector->getListBox()->clear();
+				portSelector->getListBox()->addListBoxItems(getPorts());
+			}
+		}
 	#endif
 	return readData;
 }
 
 
 
+
+
+String statusStrings[6] = {"Waiting for initialization","Idle","Accepting answers","Answering...","Testing mode","Bad port, USB disconnected?"};
 void mainLoop() {
 	win->getInput()->update();
-		
-/*
-	if (win->getInput()->isKeyUp(KEY_ESCAPE)) {
-		win->close();
+	
+	
+	
+	String readText = "";
+	//serial port reading
+	#if EE_PLATFORM == EE_PLATFORM_LINUX
+		if (sPort.GetState()==mn::CppLinuxSerial::State::OPEN)
+		{
+			readText = readSerial();
+		}
+	#endif
+	
+	if (readText.contains("idle"))
+	{
+		statusState = 1;
 	}
-*/
+	else if (readText.contains("accepting"))
+	{
+		statusState = 2;
+	}
+	else if (readText.contains("answering"))
+	{
+		if (statusState!=3)
+		{
+			answer.play();
+			acceptButton->setBackgroundColor(Color::gray);
+		}
+		statusState = 3;
+	}
+	else if (readText.contains("testing"))
+	{
+		statusState = 4;
+	}
+	
+	rawOut->setText("Raw output: "+readText);
+	statusOut->setText("Status: "+statusStrings[statusState]);
+		
 
-	//update the UI scene.
+	//UI updating
 	SceneManager::instance()->update();
 
 	if (SceneManager::instance()->getUISceneNode()->invalidated()) {
@@ -128,6 +187,10 @@ void mainLoop() {
 		win->getInput()->waitEvent( Milliseconds(win->hasFocus() ? 16 : 100));
 	}
 }
+
+
+
+
 
 
 
@@ -157,27 +220,35 @@ EE_MAIN_FUNC int main(int, char**) {
 		uiSceneNode->setStyleSheet(parser.getStyleSheet());
 		
 		//port selector 
-		auto portSelector = uiSceneNode->find<UIDropDownList>("portselector");
+		portSelector = uiSceneNode->find<UIDropDownList>("portselector");
 		portSelector->getListBox()->clear();
 		portSelector->getListBox()->addListBoxItems(getPorts());
 		
+		portSelector->on(Event::OnTextChanged,[](const Event*) {
+			openSerial(portSelector->getText());
+		});
+		
+		//status output thingies
+		rawOut = uiSceneNode->find<UITextView>("rawtitle");
+		statusOut = uiSceneNode->find<UITextView>("statustitle");
 		
 		//button setups
 		//automatic storage duration setting thing ig
-		auto acceptButton = uiSceneNode->find<UIPushButton>("accept_answers");
-		auto stopAcceptButton = uiSceneNode->find<UIPushButton>("stop_accepting");
-		auto cancelButton = uiSceneNode->find<UIPushButton>("cancel_answer");
-		auto testButton = uiSceneNode->find<UIPushButton>("testmode");
-		auto rescanButton = uiSceneNode->find<UIPushButton>("rescan");
+		acceptButton = uiSceneNode->find<UIPushButton>("accept_answers");
+		stopAcceptButton = uiSceneNode->find<UIPushButton>("stop_accepting");
+		cancelButton = uiSceneNode->find<UIPushButton>("cancel_answer");
+		testButton = uiSceneNode->find<UIPushButton>("testmode");
+		rescanButton = uiSceneNode->find<UIPushButton>("rescan");
 		
-		acceptButton->onClick([acceptButton](const MouseEvent*) {
+		acceptButton->onClick([](const MouseEvent*) {
 			acceptButton->setBackgroundColor(Color::lime);
 			sendSerial("accept");
 		}, EE_BUTTON_LEFT);
 		
-		stopAcceptButton->onClick([acceptButton,testButton](const MouseEvent*) {
+		stopAcceptButton->onClick([](const MouseEvent*) {
 			acceptButton->setBackgroundColor(Color::gray);
 			testButton->setBackgroundColor(Color::gray);
+			timeout.play();
 			sendSerial("stop");
 		}, EE_BUTTON_LEFT);
 		
@@ -185,11 +256,11 @@ EE_MAIN_FUNC int main(int, char**) {
 			sendSerial("cancel");
 		}, EE_BUTTON_LEFT);
 		
-		testButton->onClick([testButton](const MouseEvent*) {
+		testButton->onClick([](const MouseEvent*) {
 			testButton->setBackgroundColor(Color::lime);
 			sendSerial("test");
 		}, EE_BUTTON_LEFT);
-		rescanButton->onClick([portSelector](const MouseEvent*) {
+		rescanButton->onClick([](const MouseEvent*) {
 			portSelector->getListBox()->clear();
 			portSelector->getListBox()->addListBoxItems(getPorts());
 		}, EE_BUTTON_LEFT);
@@ -197,16 +268,11 @@ EE_MAIN_FUNC int main(int, char**) {
 		
 		
 		
-		//sounds
-		mismBuf.loadFromFile("assets/sounds/MIS_MÕTTES.ogg");
-		mism.setBuffer(mismBuf);
-		mism.play();
 		answerBuf.loadFromFile("assets/sounds/answer.ogg");
 		answer.setBuffer(answerBuf);
-		answer.play();
+		
 		timeoutBuf.loadFromFile("assets/sounds/timeout.ogg");
 		timeout.setBuffer(timeoutBuf);
-		timeout.play();
 
 		
 		//widget setup stuff
@@ -236,12 +302,7 @@ EE_MAIN_FUNC int main(int, char**) {
 		
 		win->setQuitCallback([](EE::Window::Window* w){
 			std::cout<<"Attempting to close open serial ports...\n";
-			#if EE_PLATFORM == EE_PLATFORM_LINUX
-				sPort.Close();
-			#endif
-			#if EE_PLATFORM == EE_PLATFORM_WINDOWS
-				//Insert windows port closing code here
-			#endif
+			closeSerial();
 			//MemoryManager::showResults();
 		});
 		
