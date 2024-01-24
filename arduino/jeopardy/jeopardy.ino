@@ -142,11 +142,8 @@ void answerCountDown(int playerNumber, int interval)
     {
       interval = 0;
     }
-    if (e > 39)
-    {
-      answerLedsOff();
-    }
   }
+  answerLedsOff();
 }
 
 void answerLedsOn()
@@ -174,23 +171,23 @@ void checkPlayerHolding() //check if player is holding down button before answer
 {
   if (digitalRead(8) == LOW)
   {
-    penalties[4] = openTime+500;
+    penalties[4] = openTime+1000;
   }
   if (digitalRead(9) == LOW)
   {
-    penalties[3] = openTime+500;
+    penalties[3] = openTime+1000;
   }
   if (digitalRead(10) == LOW)
   {
-    penalties[2] = openTime+500;
+    penalties[2] = openTime+1000;
   }
   if (digitalRead(11) == LOW)
   {
-    penalties[1] = openTime+500;
+    penalties[1] = openTime+1000;
   }
   if (digitalRead(12) == LOW)
   {
-    penalties[0] = openTime+500;
+    penalties[0] = openTime+1000;
   }
 }
 
@@ -218,30 +215,35 @@ void loop() {
     
     if (digitalRead(8) == LOW && millis()>penalties[4])
     {
+      Serial.println(F("answering"));
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(4);
     }
     if (digitalRead(9) == LOW && millis()>penalties[3])
     {
+      Serial.println(F("answering"));
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(3);
     }
     if (digitalRead(10) == LOW && millis()>penalties[2])
     {
+      Serial.println(F("answering"));
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(2);      
     }
     if (digitalRead(11) == LOW && millis()>penalties[1])
     {
+      Serial.println(F("answering"));
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(1);
     }
     if (digitalRead(12) == LOW && millis()>penalties[0])
     {
+      Serial.println(F("answering"));
       digitalWrite(13, LOW);
       expectingAnswers = false;
       initAnswer(0);
