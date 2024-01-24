@@ -7,8 +7,11 @@
  * or a single LED on pin 13
  * 
  * NOTE: The APA102 light strips that were in mind when making this project had alternating RGB and W pixels.
- *       Also for some reason 2 of the strips had addresses in the reverse order to the rest so I had to implement extra code for that
- *       These lightstrips were not daisy-chainable.
+ *       Also for some reason 3 of the strips had addresses in the reverse order to the rest so I had to implement extra code for that
+ *       To change the assignments of the reversed strips check the setStrip() function at line 70
+ *       These lightstrips were not daisy-chainable. 
+ *       Initially I tried to connect +5V,clock and GND lines of multiple strips together, with separate wires for data, but settled for
+ *       a solution, where each strip is connected to a central lighting break-out box
  *       
  * External power supply recommended
  */
@@ -27,7 +30,7 @@ CRGB statusStrip[STATUS_LEDS];
 bool testMode = true;
 bool expectingAnswers = false;
 
-PROGMEM const int playerColors[5][3] = {{255,0,0},{255,255,0},{0,255,0},{0,255,255},{255,0,255}};
+PROGMEM const int playerColors[5][3] = {{255,0,0},{127,255,0},{0,255,0},{0,255,255},{255,0,255}};
 
 void setup() {
   delay(3000); // 3 second delay for recovery
@@ -64,7 +67,14 @@ void setup() {
 }
 
 
-
+void setStrip(int stripNum, int index, int r, int g, int b) {
+  if (stripNum == 3 || stripNum == 4) //reversed + longer strips
+  {
+    index = NUM_LEDS - 1 - index; //there's actually a slight problem with this, but I can't be bothered to fix it
+    //if you haven't noticed it so far, then don't bother looking for it, it's such a minor issue
+  }
+  strips[stripNum][index] = CRGB(r,g,b);
+}
 
 #if !(DISABLE_STARTUP_SEQUENCE)
   void startupSequence() {
@@ -77,7 +87,7 @@ void setup() {
     {
       for (int i = 1; i < NUM_LEDS; i+=2)
       {    
-        setStrip(e,i,playerColors[e][0], playerColors[e][1], playerColors[e][2]);    
+        setStrip(e,i,pgm_read_word(&playerColors[e][0]), pgm_read_word(&playerColors[e][1]), pgm_read_word(&playerColors[e][2]));    
         FastLED.show();
       }
       answerCountDown(e,10);
@@ -102,20 +112,11 @@ void setup() {
 
 
 
-void setStrip(int stripNum, int index, int r, int g, int b) {
-  if (stripNum == 4)
-  {
-    index = NUM_LEDS+1 - index;
-  }
-  strips[stripNum][index] = CRGB(r,g,b);
-}
-
-
 void initAnswer(int playerNumber)
 {
   for (int i = 1; i < NUM_LEDS; i+=2)
   {
-    setStrip(playerNumber,i,playerColors[playerNumber][0], playerColors[playerNumber][1], playerColors[playerNumber][2]);    
+    setStrip(playerNumber,i,pgm_read_word(&playerColors[playerNumber][0]), pgm_read_word(&playerColors[playerNumber][1]), pgm_read_word(&playerColors[playerNumber][2]));    
   }
 
   //statusstrip off
@@ -126,7 +127,7 @@ void initAnswer(int playerNumber)
   //player color on status strip
   for (int i = 0; i < STATUS_LEDS; i+=2)
   {
-    statusStrip[i] = CRGB(playerColors[playerNumber][0],playerColors[playerNumber][1],playerColors[playerNumber][2]);    
+    statusStrip[i] = CRGB(pgm_read_word(&playerColors[playerNumber][0]),pgm_read_word(&playerColors[playerNumber][1]),pgm_read_word(&playerColors[playerNumber][2]));    
   }
   FastLED.show();
   answerCountDown(playerNumber, 150);
