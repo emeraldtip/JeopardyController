@@ -15,5 +15,3 @@ widnows: src/main.cpp
 	mkdir {bin/windows,bin/windows/assets}
 	cp -r src/assets/* bin/windows/assets/
 	/usr/bin/x86_64-w64-mingw32-$(compiler) -o bin/windows/JpController src/main.cpp -Llib/windows -lstdc++ -Llib/linux -leepp-debug lib/windows/eepp-debug.lib
-		
-#-Llib/serial/serialib (silly windows serial library
