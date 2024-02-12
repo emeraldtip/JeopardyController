@@ -30,13 +30,13 @@
   "eepp something but run": {
     "build": [
       {
-        "args": "",
+        "args": "linxus",
         "command": "make",
         "working_dir": ""
       },
       {
         "args": "",
-        "command": "bin/test",
+        "command": "bin/linux/JpController",
         "working_dir": ""
       }
     ],

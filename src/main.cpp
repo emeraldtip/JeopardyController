@@ -11,7 +11,6 @@
 	#include <CppLinuxSerial/SerialPort.hpp>
 #endif
 #if EE_PLATFORM == EE_PLATFORM_WINDOWS
-	#include <serial/serialib>
 #endif
 
 
