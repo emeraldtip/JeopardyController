@@ -137,8 +137,6 @@ String statusStrings[6] = {"Waiting for initialization","Idle","Accepting answer
 void mainLoop() {
 	win->getInput()->update();
 	
-	
-	
 	String readText = "";
 	//serial port reading
 	#if EE_PLATFORM == EE_PLATFORM_LINUX
